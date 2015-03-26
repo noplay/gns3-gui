@@ -29,7 +29,7 @@ import subprocess
 from .qt import QtGui, QtCore, QtNetwork
 from .http_client import HTTPClient
 from .local_config import LocalConfig
-from .settings import LOCAL_SERVER_SETTINGS, LOCAL_SERVER_SETTING_TYPES
+from .settings import LOCAL_SERVER_SETTINGS, LOCAL_SERVER_SETTING_TYPES, APPLIANCE_SERVER_SETTINGS
 from .local_server_config import LocalServerConfig
 from collections import OrderedDict
 
@@ -49,6 +49,9 @@ class Servers(QtCore.QObject):
     def __init__(self):
 
         super(Servers, self).__init__()
+
+        self._appliance_settings = {}
+
         self._local_server = None
         self._remote_servers = {}
         self._cloud_servers = {}
@@ -94,6 +97,8 @@ class Servers(QtCore.QObject):
 
         local_config = LocalConfig.instance()
 
+        self._appliance_settings = local_config.loadSectionSettings("Appliance", APPLIANCE_SERVER_SETTINGS)
+
         # restore the local server settings from QSettings (for backward compatibility)
         legacy_settings = {}
         settings = QtCore.QSettings()
@@ -138,6 +143,8 @@ class Servers(QtCore.QObject):
         # save the settings
         LocalConfig.instance().saveSectionSettings("LocalServer", self._local_server_settings)
 
+        LocalConfig.instance().saveSectionSettings("Appliance", self._appliance_settings)
+
         # save the remote servers
         remote_servers = []
         for server in self._remote_servers.values():
@@ -162,6 +169,21 @@ class Servers(QtCore.QObject):
 
         if self._local_server and self._local_server.connected():
             self._local_server.post("/config/reload", None)
+
+    def applianceSettings(self):
+        """
+        Return the appliance settings
+
+        :returns: appliance settings (dict)
+        """
+
+        return self._appliance_settings
+
+    def setApplianceSettings(self, settings):
+        """
+        Set appliance settings
+        """
+        self._appliance_settings.update(settings)
 
     def localServerSettings(self):
         """
@@ -479,7 +501,6 @@ class Servers(QtCore.QObject):
         """
 
         self._saveSettings()
-
 
     def disconnectAllServers(self):
         """

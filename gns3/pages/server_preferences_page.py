@@ -86,6 +86,7 @@ class ServerPreferencesPage(QtGui.QWidget, Ui_ServerPreferencesPageWidget):
         """
 
         self._populateWidgets(LOCAL_SERVER_SETTINGS)
+        self._populateApplianceWidgets(APPLIANCE_SERVER_SETTINGS)
 
     def _localServerBrowserSlot(self):
         """
@@ -183,6 +184,15 @@ class ServerPreferencesPage(QtGui.QWidget, Ui_ServerPreferencesPageWidget):
         self.uiUDPStartPortSpinBox.setValue(settings["udp_start_port_range"])
         self.uiUDPEndPortSpinBox.setValue(settings["udp_end_port_range"])
 
+    def _populateApplianceWidgets(self, settings):
+        """
+        Populates the widgets with the settings.
+
+        :param settings: Local server settings
+        """
+
+        self.uiApplianceAutoStartCheckBox.setChecked(settings["auto_start"])
+
     def loadPreferences(self):
         """
         Loads the server preferences.
@@ -193,6 +203,9 @@ class ServerPreferencesPage(QtGui.QWidget, Ui_ServerPreferencesPageWidget):
         # load the local server preferences
         local_server_settings = servers.localServerSettings()
         self._populateWidgets(local_server_settings)
+
+        appliance_settings = servers.applianceSettings()
+        self._populateApplianceWidgets(appliance_settings)
 
         # load remote server preferences
         self._remote_servers.clear()
@@ -216,6 +229,11 @@ class ServerPreferencesPage(QtGui.QWidget, Ui_ServerPreferencesPageWidget):
         servers = Servers.instance()
         current_settings = servers.localServerSettings()
         restart_local_server = False
+
+        # save the appliance settings
+        new_settings = {}
+        new_settings["auto_start"] = self.uiApplianceAutoStartCheckBox.isChecked()
+        servers.setApplianceSettings(new_settings)
 
         # save the local server preferences
         new_settings = {}

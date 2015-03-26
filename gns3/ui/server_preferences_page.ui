@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>430</width>
-    <height>503</height>
+    <width>460</width>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -341,6 +341,27 @@
       <zorder>uiRemoteServerPortLineEdit</zorder>
       <zorder>uiRemoteServersTreeWidget</zorder>
       <zorder>horizontalSpacer_2</zorder>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>GNS3 VM</string>
+      </attribute>
+      <widget class="QCheckBox" name="uiApplianceAutoStartCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>198</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Launch GNS3 VM at startup</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
    </item>

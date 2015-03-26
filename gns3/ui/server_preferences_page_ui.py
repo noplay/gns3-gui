@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/grossmj/PycharmProjects/gns3-gui/gns3/ui/server_preferences_page.ui'
+# Form implementation generated from reading ui file '/Users/noplay/code/gns3/gns3-gui/gns3/ui/server_preferences_page.ui'
 #
-# Created: Fri Mar 13 15:09:36 2015
-#      by: PyQt4 UI code generator 4.10.4
+# Created: Thu Mar 26 10:17:38 2015
+#      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,16 +17,19 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class Ui_ServerPreferencesPageWidget(object):
+
     def setupUi(self, ServerPreferencesPageWidget):
         ServerPreferencesPageWidget.setObjectName(_fromUtf8("ServerPreferencesPageWidget"))
-        ServerPreferencesPageWidget.resize(430, 503)
+        ServerPreferencesPageWidget.resize(460, 536)
         self.vboxlayout = QtGui.QVBoxLayout(ServerPreferencesPageWidget)
         self.vboxlayout.setObjectName(_fromUtf8("vboxlayout"))
         self.uiTabWidget = QtGui.QTabWidget(ServerPreferencesPageWidget)
@@ -159,6 +162,13 @@ class Ui_ServerPreferencesPageWidget(object):
         self.uiRemoteServerPortSpinBox.setObjectName(_fromUtf8("uiRemoteServerPortSpinBox"))
         self.gridLayout_2.addWidget(self.uiRemoteServerPortSpinBox, 4, 0, 1, 2)
         self.uiTabWidget.addTab(self.uiRemoteTabWidget, _fromUtf8(""))
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName(_fromUtf8("tab"))
+        self.uiApplianceAutoStartCheckBox = QtGui.QCheckBox(self.tab)
+        self.uiApplianceAutoStartCheckBox.setGeometry(QtCore.QRect(10, 20, 198, 20))
+        self.uiApplianceAutoStartCheckBox.setChecked(True)
+        self.uiApplianceAutoStartCheckBox.setObjectName(_fromUtf8("uiApplianceAutoStartCheckBox"))
+        self.uiTabWidget.addTab(self.tab, _fromUtf8(""))
         self.vboxlayout.addWidget(self.uiTabWidget)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
@@ -198,5 +208,6 @@ class Ui_ServerPreferencesPageWidget(object):
         self.uiAddRemoteServerPushButton.setText(_translate("ServerPreferencesPageWidget", "&Add", None))
         self.uiDeleteRemoteServerPushButton.setText(_translate("ServerPreferencesPageWidget", "&Delete", None))
         self.uiTabWidget.setTabText(self.uiTabWidget.indexOf(self.uiRemoteTabWidget), _translate("ServerPreferencesPageWidget", "Remote servers", None))
+        self.uiApplianceAutoStartCheckBox.setText(_translate("ServerPreferencesPageWidget", "Launch GNS3 VM at startup", None))
+        self.uiTabWidget.setTabText(self.uiTabWidget.indexOf(self.tab), _translate("ServerPreferencesPageWidget", "GNS3 VM", None))
         self.uiRestoreDefaultsPushButton.setText(_translate("ServerPreferencesPageWidget", "Restore defaults", None))
-

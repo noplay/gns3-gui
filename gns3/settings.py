@@ -243,6 +243,10 @@ LOCAL_SERVER_SETTINGS = {
     "udp_end_port_range": 20000,
 }
 
+APPLIANCE_SERVER_SETTINGS = {
+    "auto_start": False
+}
+
 LOCAL_SERVER_SETTING_TYPES = {
     "path": str,
     "host": str,
