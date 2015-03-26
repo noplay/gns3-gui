@@ -41,6 +41,7 @@ from .modules.vpcs import VPCS
 from .version import __version__
 from .qt import QtGui, QtCore, QtNetwork
 from .servers import Servers
+from .appliance import Appliance
 from .node import Node
 from .ui.main_window_ui import Ui_MainWindow
 from .dialogs.about_dialog import AboutDialog
@@ -151,6 +152,8 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         self._cloud_provider = None
         CloudInstances.instance().clear()
         CloudInstances.instance().load()
+
+        Appliance.instance().autostart()
 
         # set the window icon
         self.setWindowIcon(QtGui.QIcon(":/images/gns3.ico"))
@@ -1051,6 +1054,7 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
         """
 
         servers = Servers.instance()
+        Appliance.instance.autostop()
         if self._project.closed() and not servers.localServerIsRunning():
             event.accept()
         elif self.checkForUnsavedChanges():
