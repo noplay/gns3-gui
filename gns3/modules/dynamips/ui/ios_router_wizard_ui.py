@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '/Users/noplay/code/gns3/gns3-gui/gns3/modules/dynamips/ui/ios_router_wizard.ui'
 #
-# Created: Wed Apr  1 15:15:16 2015
+# Created: Thu Apr 16 14:23:40 2015
 #      by: PyQt4 UI code generator 4.11.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,13 +17,16 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
+
 class Ui_IOSRouterWizard(object):
+
     def setupUi(self, IOSRouterWizard):
         IOSRouterWizard.setObjectName(_fromUtf8("IOSRouterWizard"))
         IOSRouterWizard.resize(585, 398)
@@ -73,10 +76,29 @@ class Ui_IOSRouterWizard(object):
         IOSRouterWizard.addPage(self.uiServerWizardPage)
         self.uiIOSImageWizardPage = QtGui.QWizardPage()
         self.uiIOSImageWizardPage.setObjectName(_fromUtf8("uiIOSImageWizardPage"))
-        self.gridLayout_6 = QtGui.QGridLayout(self.uiIOSImageWizardPage)
-        self.gridLayout_6.setObjectName(_fromUtf8("gridLayout_6"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.uiIOSImageWizardPage)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.uiIOSExistingImageRadioButton = QtGui.QRadioButton(self.uiIOSImageWizardPage)
+        self.uiIOSExistingImageRadioButton.setChecked(True)
+        self.uiIOSExistingImageRadioButton.setObjectName(_fromUtf8("uiIOSExistingImageRadioButton"))
+        self.horizontalLayout_4.addWidget(self.uiIOSExistingImageRadioButton)
+        self.uiIOSNewImageRadioButton = QtGui.QRadioButton(self.uiIOSImageWizardPage)
+        self.uiIOSNewImageRadioButton.setChecked(False)
+        self.uiIOSNewImageRadioButton.setObjectName(_fromUtf8("uiIOSNewImageRadioButton"))
+        self.horizontalLayout_4.addWidget(self.uiIOSNewImageRadioButton)
+        spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem1)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_4)
+        self.uiIOSImageLabel = QtGui.QLabel(self.uiIOSImageWizardPage)
+        self.uiIOSImageLabel.setObjectName(_fromUtf8("uiIOSImageLabel"))
+        self.verticalLayout_2.addWidget(self.uiIOSImageLabel)
         self.horizontalLayout_5 = QtGui.QHBoxLayout()
         self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
+        self.uiIOSImageListComboBox = QtGui.QComboBox(self.uiIOSImageWizardPage)
+        self.uiIOSImageListComboBox.setObjectName(_fromUtf8("uiIOSImageListComboBox"))
+        self.horizontalLayout_5.addWidget(self.uiIOSImageListComboBox)
         self.uiIOSImageLineEdit = QtGui.QLineEdit(self.uiIOSImageWizardPage)
         self.uiIOSImageLineEdit.setObjectName(_fromUtf8("uiIOSImageLineEdit"))
         self.horizontalLayout_5.addWidget(self.uiIOSImageLineEdit)
@@ -84,10 +106,7 @@ class Ui_IOSRouterWizard(object):
         self.uiIOSImageToolButton.setToolButtonStyle(QtCore.Qt.ToolButtonTextOnly)
         self.uiIOSImageToolButton.setObjectName(_fromUtf8("uiIOSImageToolButton"))
         self.horizontalLayout_5.addWidget(self.uiIOSImageToolButton)
-        self.gridLayout_6.addLayout(self.horizontalLayout_5, 1, 1, 1, 1)
-        self.uiIOSImageLabel = QtGui.QLabel(self.uiIOSImageWizardPage)
-        self.uiIOSImageLabel.setObjectName(_fromUtf8("uiIOSImageLabel"))
-        self.gridLayout_6.addWidget(self.uiIOSImageLabel, 1, 0, 1, 1)
+        self.verticalLayout_2.addLayout(self.horizontalLayout_5)
         IOSRouterWizard.addPage(self.uiIOSImageWizardPage)
         self.uiNamePlatformWizardPage = QtGui.QWizardPage()
         self.uiNamePlatformWizardPage.setObjectName(_fromUtf8("uiNamePlatformWizardPage"))
@@ -295,8 +314,10 @@ class Ui_IOSRouterWizard(object):
         self.uiRemoteServersLabel.setText(_translate("IOSRouterWizard", "Run on server:", None))
         self.uiIOSImageWizardPage.setTitle(_translate("IOSRouterWizard", "IOS image", None))
         self.uiIOSImageWizardPage.setSubTitle(_translate("IOSRouterWizard", "Please choose an IOS image.", None))
-        self.uiIOSImageToolButton.setText(_translate("IOSRouterWizard", "&Browse...", None))
+        self.uiIOSExistingImageRadioButton.setText(_translate("IOSRouterWizard", "Existing image", None))
+        self.uiIOSNewImageRadioButton.setText(_translate("IOSRouterWizard", "New Image", None))
         self.uiIOSImageLabel.setText(_translate("IOSRouterWizard", "IOS image:", None))
+        self.uiIOSImageToolButton.setText(_translate("IOSRouterWizard", "&Browse...", None))
         self.uiNamePlatformWizardPage.setTitle(_translate("IOSRouterWizard", "Name and platform", None))
         self.uiNamePlatformWizardPage.setSubTitle(_translate("IOSRouterWizard", "Please choose a descriptive name for this new IOS router and verify the platform and chassis.", None))
         self.uiTypeLabel.setText(_translate("IOSRouterWizard", "Platform:", None))
@@ -327,4 +348,3 @@ class Ui_IOSRouterWizard(object):
         self.uiIdlePCWizardPage.setSubTitle(_translate("IOSRouterWizard", "An idle-pc value is necessary to prevent IOS to use 100% of your processor or one of its core.", None))
         self.uiIdlepcLabel.setText(_translate("IOSRouterWizard", "Idle-PC:", None))
         self.uiIdlePCFinderPushButton.setText(_translate("IOSRouterWizard", "Idle-PC finder", None))
-

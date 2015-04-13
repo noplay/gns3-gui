@@ -22,18 +22,18 @@ Wizard for IOU devices.
 import os
 import sys
 
-from gns3.qt import QtGui
+from gns3.qt import QtGui, QtCore
 from gns3.node import Node
 from gns3.servers import Servers
 from gns3.utils.get_resource import get_resource
 from gns3.utils.get_default_base_config import get_default_base_config
+from gns3.device_wizard import DeviceWizard
 
-from ....settings import ENABLE_CLOUD
 from ..ui.iou_device_wizard_ui import Ui_IOUDeviceWizard
 from .. import IOU
 
 
-class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
+class IOUDeviceWizard(DeviceWizard, Ui_IOUDeviceWizard):
 
     """
     Wizard to create an IOU device.
@@ -43,21 +43,13 @@ class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
 
     def __init__(self, iou_devices, parent):
 
-        QtGui.QWizard.__init__(self, parent)
-        self.setupUi(self)
+        super().__init__(parent)
         self.setPixmap(QtGui.QWizard.LogoPixmap, QtGui.QPixmap(":/symbols/multilayer_switch.normal.svg"))
-        self.setWizardStyle(QtGui.QWizard.ModernStyle)
-        if sys.platform.startswith("darwin"):
-            # we want to see the cancel button on OSX
-            self.setOptions(QtGui.QWizard.NoDefaultButton)
 
-        self.uiRemoteRadioButton.toggled.connect(self._remoteServerToggledSlot)
-        self.uiLoadBalanceCheckBox.toggled.connect(self._loadBalanceToggledSlot)
-        self.uiIOUImageToolButton.clicked.connect(self._iouImageBrowserSlot)
         self.uiTypeComboBox.currentIndexChanged[str].connect(self._typeChangedSlot)
 
-        if sys.platform.startswith("win"):
-            # Cannot use IOU locally on Windows
+        if sys.platform.startswith("win") or sys.platform.startswith("darwin"):
+            # Cannot use IOU locally on Windows and Mac
             self.uiLocalRadioButton.setEnabled(False)
 
         # Available types
@@ -71,57 +63,26 @@ class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
 
         if IOU.instance().settings()["use_local_server"]:
             # skip the server page if we use the local server
+            self.uiLocalRadioButton.setEnabled(True)
             self.setStartId(1)
-        else:
-            self.uiIOUImageToolButton.setEnabled(False)
 
-        if not ENABLE_CLOUD:
-            self.uiCloudRadioButton.hide()
+        self.uiIOUImageLineEdit.textChanged.connect(self._imageLineEditTextChangedSlot)
 
         # location of the base config templates
         self._base_iou_l2_config_template = get_resource(os.path.join("configs", "iou_l2_base_initial-config.txt"))
         self._base_iou_l3_config_template = get_resource(os.path.join("configs", "iou_l3_base_initial-config.txt"))
 
-    def _remoteServerToggledSlot(self, checked):
-        """
-        Slot for when the remote server radio button is toggled.
-
-        :param checked: either the button is checked or not
-        """
-
-        if checked:
-            self.uiRemoteServersGroupBox.setEnabled(True)
-            self.uiIOUImageToolButton.setEnabled(False)
-        else:
-            self.uiRemoteServersGroupBox.setEnabled(False)
-            self.uiIOUImageToolButton.setEnabled(True)
-
-    def _loadBalanceToggledSlot(self, checked):
-        """
-        Slot for when the load balance checkbox is toggled.
-
-        :param checked: either the box is checked or not
-        """
-
-        if checked:
-            self.uiRemoteServersComboBox.setEnabled(False)
-        else:
-            self.uiRemoteServersComboBox.setEnabled(True)
-
-    def _iouImageBrowserSlot(self):
-        """
-        Slot to open a file browser and select an IOU image.
-        """
-
         from ..pages.iou_device_preferences_page import IOUDevicePreferencesPage
-        path = IOUDevicePreferencesPage.getIOUImage(self)
-        if not path:
-            return
-        self.uiIOUImageLineEdit.clear()
-        self.uiIOUImageLineEdit.setText(path)
-        if "l2" in path:
+        self.addImageSelector(self.uiExistingImageRadioButton, self.uiIOUImageListComboBox, self.uiIOUImageLineEdit, self.uiIOUImageToolButton, IOUDevicePreferencesPage.getIOUImage)
+
+    def _imageLineEditTextChangedSlot(self, text):
+        """
+        Set image type depending of user choice
+        """
+
+        if "l2" in text:
             self.uiTypeComboBox.setCurrentIndex(0)  # L2 image
-        else:
+        elif "l3" in text:
             self.uiTypeComboBox.setCurrentIndex(1)  # L3 image
 
     def _typeChangedSlot(self, image_type):
@@ -140,18 +101,23 @@ class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
 
     def initializePage(self, page_id):
 
+        super().initializePage(page_id)
         if self.page(page_id) == self.uiServerWizardPage:
             self.uiRemoteServersComboBox.clear()
             for server in Servers.instance().remoteServers().values():
                 self.uiRemoteServersComboBox.addItem("{}:{}".format(server.host, server.port), server)
         if self.page(page_id) == self.uiNameImageWizardPage:
-            if not self.uiIOUImageToolButton.isEnabled():
+            if not self.uiLocalRadioButton.isChecked():
                 QtGui.QMessageBox.warning(self, "IOU image", "You have chosen to use a remote server, please provide the path to an IOU image located on this server!")
+            self.loadImagesList("/iou/vms")
 
     def validateCurrentPage(self):
         """
         Validates the server.
         """
+
+        if super().validateCurrentPage() is False:
+            return False
 
         if self.currentPage() == self.uiNameImageWizardPage:
             name = self.uiNameLineEdit.text()
@@ -159,10 +125,14 @@ class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
                 if iou_device["name"] == name:
                     QtGui.QMessageBox.critical(self, "Name", "{} is already used, please choose another name".format(name))
                     return False
-        if self.currentPage() == self.uiServerWizardPage and self.uiRemoteRadioButton.isChecked():
-            if not Servers.instance().remoteServers():
-                QtGui.QMessageBox.critical(self, "Remote server", "There is no remote server registered in IOS on UNIX preferences")
-                return False
+        if self.currentPage() == self.uiServerWizardPage:
+            if self.uiRemoteRadioButton.isChecked():
+                if not Servers.instance().remoteServers():
+                    QtGui.QMessageBox.critical(self, "Remote server", "There is no remote server registered in IOS on UNIX preferences")
+                    return False
+                self._server = self.uiRemoteServersComboBox.itemData(self.uiRemoteServersComboBox.currentIndex())
+            else:
+                self._server = Servers.instance().localServer()
         return True
 
     def getSettings(self):
@@ -196,7 +166,7 @@ class IOUDeviceWizard(QtGui.QWizard, Ui_IOUDeviceWizard):
             ethernet_adapters = 2
             serial_adapters = 2
 
-        if IOU.instance().settings()["use_local_server"] or self.uiLocalRadioButton.isChecked():
+        if self.uiLocalRadioButton.isChecked():
             server = "local"
         elif self.uiRemoteRadioButton.isChecked():
             if self.uiLoadBalanceCheckBox.isChecked():
