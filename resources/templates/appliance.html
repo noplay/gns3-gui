@@ -43,7 +43,7 @@
     {% for version in appliance["versions"] | reverse %}
         <h2>{{ appliance["name"] }} {{version["name"]}}</h2>
         {% if appliance.is_version_installable(version["name"]) %}
-            <button type="button" class="btn btn-primary navbar-btn">Install</button>
+        <button type="button" class="btn btn-primary navbar-btn" onclick="return gns3.install('{{version["name"]}}')">Install</button>
         {% else %}
             <div class="alert alert-warning">
                 Can't install this appliance version until you import the missing images
