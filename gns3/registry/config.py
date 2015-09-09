@@ -36,7 +36,6 @@ class Config:
         :params path: Path of the configuration file, otherwise detect it on the system
         """
 
-        #TODO: Manage errors
         self.path = path
         if self.path is None:
             self.path = self._get_standard_config_file_path()

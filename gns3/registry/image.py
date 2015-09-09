@@ -30,7 +30,6 @@ class Image:
         """
         :params: path of the image
         """
-        assert not path.endswith(".md5sum")
 
         self.path = path
         self._md5sum = None
@@ -58,10 +57,11 @@ class Image:
         self._version = version
 
     @property
-    def md5sum(self):
+    def md5sum(self, cache=True):
         """
         Compute a md5 hash for file
 
+        :params cache: Cache sum on disk
         :returns: hexadecimal md5
         """
 
@@ -79,8 +79,9 @@ class Image:
                         break
                     m.update(buf)
             self._md5sum = m.hexdigest()
-        with open(self.path + ".md5sum", "w+") as f:
-            f.write(self._md5sum)
+        if cache:
+            with open(self.path + ".md5sum", "w+") as f:
+                f.write(self._md5sum)
         return self._md5sum
 
     @property

@@ -43,7 +43,7 @@
     {% for version in appliance["versions"] | reverse %}
         <h2>{{ appliance["name"] }} {{version["name"]}}</h2>
         {% if appliance.is_version_installable(version["name"]) %}
-        <button type="button" class="btn btn-primary navbar-btn" onclick="return gns3.install('{{version["name"]}}')">Install</button>
+            <button type="button" class="btn btn-primary navbar-btn" onclick="return gns3.install('{{version["name"]}}')">Install</button>
         {% else %}
             <div class="alert alert-warning">
                 Can't install this appliance version until you import the missing images
@@ -54,15 +54,20 @@
         {% set version_id = loop.index %}
         {% for image in version.images.values() %}
             <h4>{{image["filename"]}}</h4>
-            Slot: {{image["type"]}}<br />
             File Version: {{image["version"]}}<br />
             Size: {{ image["filesize"] | human_filesize}}<br />
             Checksum: {{image["md5sum"]}}<br />
             Download url: <a href="{{image["download_url"]}}">{{image["download_url"]}}</a><br />
-
             {% if "direct_download_url" in image %}
                 Direct download url: <a href="{{image["direct_download_url"]}}">{{image["direct_download_url"]}}</a><br />
             {% endif %}
+            {% set image_path = registry.search_image_file(image["md5sum"]) %}
+            {% if image_path %}
+                <p style="color: green">File available: {{image_path}}</p>
+            {% else %}
+                <p style="color: red">File not available</p>
+                <button type="button" class="btn btn-primary navbar-btn" onclick="return gns3.importAppliance('{{image["filename"]}}', '{{image["md5sum"]}}')">Import file</button>
+            {% endif %}        
             <hr />
         {% endfor %}
     {% endfor %}

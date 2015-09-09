@@ -12,7 +12,6 @@ class Ui_ApplianceWindow(object):
     def setupUi(self, ApplianceWindow):
         ApplianceWindow.setObjectName("ApplianceWindow")
         ApplianceWindow.setWindowModality(QtCore.Qt.WindowModal)
-        ApplianceWindow.resize(400, 300)
         self.horizontalLayout = QtWidgets.QHBoxLayout(ApplianceWindow)
         self.horizontalLayout.setContentsMargins(5, 5, 5, 5)
         self.horizontalLayout.setObjectName("horizontalLayout")

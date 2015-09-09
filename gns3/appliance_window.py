@@ -17,6 +17,8 @@
 
 
 import jinja2
+import os
+import shutil
 
 from .utils.get_resource import get_resource
 from .qt import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets, QtGui
@@ -25,6 +27,8 @@ from .image_manager import ImageManager
 from .registry.appliance import Appliance
 from .registry.registry import Registry
 from .registry.config import Config
+from .registry.image import Image
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -69,10 +73,12 @@ class ApplianceWindow(QtWidgets.QWidget, Ui_ApplianceWindow):
 
         registry = Registry(ImageManager.instance().getDirectory())
 
-        #TODO: Catch error
-        self._appliance = Appliance(registry, self._path)
+        try:
+            self._appliance = Appliance(registry, self._path)
+        except ApplianceError as e:
+            QtWidgets.QMessageBox.critical(self.parent(), "Add appliance", str(e))
 
-        self.uiWebView.setHtml(template.render(appliance=self._appliance))
+        self.uiWebView.setHtml(template.render(appliance=self._appliance, registry=registry))
 
     def javaScriptWindowObject(self):
         frame = self.uiWebView.page().mainFrame()
@@ -87,7 +93,7 @@ class ApplianceWindow(QtWidgets.QWidget, Ui_ApplianceWindow):
     #
     # Public Javascript methods
     #
-    @QtCore.pyqtSlot(str, result=bool)
+    @QtCore.pyqtSlot(str)
     def install(self, version):
         """
         Install an appliance based on appliance version
@@ -95,7 +101,13 @@ class ApplianceWindow(QtWidgets.QWidget, Ui_ApplianceWindow):
         :param version: Version to install
         """
 
-        config = Config()
+        try:
+            config = Config()
+        except OSError as e:
+            QtWidgets.QMessageBox.critical(self.parent(), "Add appliance", str(e))
+            self.close()
+            return
+
         appliance_configuration = self._appliance.search_images_for_version(version)
 
         if config.servers == ["local"]:
@@ -113,10 +125,38 @@ class ApplianceWindow(QtWidgets.QWidget, Ui_ApplianceWindow):
             if ok:
                 server = server_types[selection]
             else:
-                return False
+                return
 
-        # if config.add_appliance(appliance_configuration, server):
-        #     self.success.emit("{} installed".format(appliance["name"]))
-        config.save()
-        return True
+        if config.add_appliance(appliance_configuration, server):
+            self.close()
+            try:
+                config.save()
+            except OSError as e:
+                QtWidgets.QMessageBox.critical(self.parent(), "Add appliance", str(e))
+                return
+            QtWidgets.QMessageBox.information(self.parent(), "Add appliance", "{} {} installed!".format(self._appliance["name"], version))
 
+    @QtCore.pyqtSlot(str, str)
+    def importAppliance(self, filename, md5sum):
+        path, _ = QtWidgets.QFileDialog.getOpenFileName()
+        if len(path) == 0:
+            return
+
+        #Do not create temporary file
+        md5 = Image(path, cache=False).md5sum
+        if md5 != md5sum:
+            QtWidgets.QMessageBox.warning(self.parent(), "Add appliance", "This is not the correct image file.")
+            return
+
+        try:
+            config = Config()
+            #TODO: ASK for VM type
+            os.makedirs(os.path.join(config.images_dir, "QEMU"), exist_ok=True)
+            dst_path = os.path.join(config.images_dir, "QEMU", filename)
+            shutil.copy(path, dst_path)
+            md5 = Image(dst_path).md5sum
+        except OSError as e:
+            QtWidgets.QMessageBox.critical(self.parent(), "Add appliance", str(e))
+            return False
+
+        self._refresh()
