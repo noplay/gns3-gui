@@ -42,6 +42,13 @@
 
     {% for version in appliance["versions"] | reverse %}
         <h2>{{ appliance["name"] }} {{version["name"]}}</h2>
+        {% if appliance.is_version_installable(version["name"]) %}
+            <button type="button" class="btn btn-primary navbar-btn">Install</button>
+        {% else %}
+            <div class="alert alert-warning">
+                Can't install this appliance version until you import the missing images
+            </div>
+        {% endif %}
         <h3>Require files</h3>
 
         {% set version_id = loop.index %}

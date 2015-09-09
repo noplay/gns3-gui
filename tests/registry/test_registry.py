@@ -25,69 +25,6 @@ import os
 from gns3.registry.registry import Registry, RegistryError
 
 
-def test_resolve_version(tmpdir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-
-    registry = Registry(str(tmpdir))
-    new_config = registry._resolve_version(config)
-    assert new_config["versions"][0]["images"] == {"hda_disk_image": config["images"][0]}
-
-
-def test_search_images_for_version(linux_microcore_img, images_dir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-
-    registry = Registry(images_dir)
-    detected = registry.search_images_for_version(config, "3.4.1")
-    assert detected["name"] == "Micro Core Linux 3.4.1"
-    assert detected["images"][0]["type"] == "hda_disk_image"
-    assert detected["images"][0]["path"] == linux_microcore_img
-
-
-def test_list_installable_versions(linux_microcore_img, images_dir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-
-    registry = Registry(images_dir)
-    assert registry.list_installable_versions(config) == ["3.4.1"]
-
-
-def test_search_images_for_version_unknow_version(linux_microcore_img, images_dir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-
-    registry = Registry(images_dir)
-    with pytest.raises(RegistryError):
-        detected = registry.search_images_for_version(config, "42")
-
-
-
-def test_search_images_for_version_invalid_registry(linux_microcore_img, images_dir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-        config["registry_version"] = 2
-
-    registry = Registry(images_dir)
-    with pytest.raises(RegistryError):
-        detected = registry.search_images_for_version(config, "3.4.1")
-
-
-def test_search_images_for_version_missing_file(images_dir):
-
-    with open("tests/registry/appliances/microcore-linux.json") as f:
-        config = json.load(f)
-
-    registry = Registry(images_dir)
-    with pytest.raises(RegistryError):
-        detected = registry.search_images_for_version(config, "4.0.2")
-
-
 def test_search_image_file(tmpdir):
 
     os.makedirs(str(tmpdir / "QEMU"))

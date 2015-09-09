@@ -3,7 +3,7 @@
  <class>ApplianceWindow</class>
  <widget class="QWidget" name="ApplianceWindow">
   <property name="windowModality">
-   <enum>Qt::NonModal</enum>
+   <enum>Qt::WindowModal</enum>
   </property>
   <property name="geometry">
    <rect>

@@ -26,7 +26,12 @@ class ApplianceError(Exception):
 
 
 class Appliance(collections.Mapping):
-    def __init__(self, path):
+    def __init__(self, registry, path):
+        """
+        :params registry: Instance of the registry where images are located
+        :params path: Path of the appliance file on disk
+        """
+        self._registry = registry
 
         try:
             with open(path) as f:
@@ -35,6 +40,7 @@ class Appliance(collections.Mapping):
             raise ApplianceError("Could not read appliance {}: {}".format(path, str(e)))
         self._check_config()
         self._resolve_version()
+
 
     def _check_config(self):
         """
@@ -65,4 +71,49 @@ class Appliance(collections.Mapping):
                     if file["filename"] == filename:
                         version["images"][image_type] = copy.copy(file)
 
+
+    def search_images_for_version(self, version_name):
+        """
+        Search on disk the images required by this version.
+        And keep only the require images in the images fields. Add to the images
+        their disk type and path.
+
+        :param version_name: Version name
+        :returns: Appliance with only require images
+        """
+
+        found = False
+        appliance = copy.deepcopy(self._appliance)
+        for version in appliance["versions"]:
+            if version["name"] == version_name:
+                appliance["name"] = "{} {}".format(appliance["name"], version["name"])
+                appliance["images"] = []
+                for image_type, image in version["images"].items():
+                    image["type"] = image_type
+                    image["path"] = self._registry.search_image_file(image["md5sum"])
+                    if image["path"] is None:
+                        raise ApplianceError("File {} with checksum {} not found for {}".format(image["filename"], image["md5sum"], appliance["name"]))
+
+                    appliance["images"].append(image)
+                    found = True
+                break
+
+        if not found:
+            raise ApplianceError("Version {} not found for {}".format(version_name, appliance["name"]))
+
+        return appliance
+
+    def is_version_installable(self, version):
+        """
+        Search on disk if a version is available for this appliance
+
+        :params version: Version name
+        :returns: Boolean true if installable
+        """
+
+        try:
+            self.search_images_for_version(version)
+            return True
+        except ApplianceError:
+            return False
 

@@ -21,7 +21,9 @@ import jinja2
 from .utils.get_resource import get_resource
 from .qt import QtCore, QtWidgets, QtWebKit, QtWebKitWidgets, QtGui
 from .ui.appliance_window_ui import Ui_ApplianceWindow
+from .image_manager import ImageManager
 from .registry.appliance import Appliance
+from .registry.registry import Registry
 
 import logging
 log = logging.getLogger(__name__)
@@ -51,8 +53,12 @@ class ApplianceWindow(QtWidgets.QWidget, Ui_ApplianceWindow):
         renderer.filters['nl2br'] = lambda s: s.replace('\n', '<br />')
         renderer.filters['human_filesize'] = human_filesize
         template = renderer.get_template("appliance.html")
+
+        registry = Registry(ImageManager.instance().getDirectory())
+
         #TODO: Catch error
-        appliance = Appliance(path)
+        appliance = Appliance(registry, path)
+
         self.uiWebView.setHtml(template.render(appliance=appliance))
         self.show()
 
